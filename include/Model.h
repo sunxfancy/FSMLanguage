@@ -3,19 +3,19 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include "VectorDef.h"
 
 namespace fsm {
 
 class State;
 class Transition;
+class FSM;
+typedef const std::string& StringCR;
 
-typedef const string& StringCR;
-typedef std::vector<std::string> StringVector;
-typedef std::unique_ptr<StringVector> StringVectorUP;
-typedef std::vector<State> StateVector;
-typedef std::unique_ptr<StateVector> StateVectorUP;
-typedef std::vector<Transition> TransitionVector;
-typedef std::unique_ptr<TransitionVector> TransitionVectorUP;
+VectorAndPtrDefineRename(String, std::string);
+VectorAndPtrDefine(FSM);
+VectorAndPtrDefine(State);
+VectorAndPtrDefine(Transition);
 
 class FSM {
 public:

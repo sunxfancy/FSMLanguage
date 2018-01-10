@@ -1,0 +1,8 @@
+Robot(found_human, found_enemy) : void {    
+    state : stop, move
+    state2: fire, ceasefire
+    move[found_human==0] -> stop
+    stop[found_human==1] -> move
+    fire[found_enemy==0] -> ceasefire
+    ceasefire[found_enemy==1] -> fire
+}

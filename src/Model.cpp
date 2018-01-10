@@ -1,25 +1,94 @@
 #include "Model.h"
+#include <iostream>
 
 using namespace std;
 using namespace fsm;
 
-FSM::FSM (StringCR name, StringVectorUP args, StringVectorUP outargs, 
-    StateVectorUP statelist, TransitionVectorUP transitionlist) {
+FSM::FSM (StringCR name, StringVectorP args, StringVectorP outargs) {
     this->Name = name;
-    this->Args = move(args);
-    this->OutArgs = move(outargs);
-    this->StateList = move(statelist);
-    this->TransitionList = move(transitionlist);
+    this->Args = args;
+    this->OutArgs = outargs;
 }
 
-State::State(StringCR name, StringVectorUP statelist) {
+FSM::FSM (StringCR name, StringVectorP args, StringVectorP outargs, 
+    StatementPVectorP statementlist) {
     this->Name = name;
-    this->StateList = move(statelist);
+    this->Args = args;
+    this->OutArgs = outargs;
+    for (auto p : *statementlist) {
+        push_back(p);
+    }
 }
 
-Transition::Transition(StringCR beginstate, StringCR endstate, StringCR condition, StringVectorUP output) {
+void FSM::push_back(StatementP statement) {
+    if (statement->getType() == StatementType::StateTy) {
+        StateP sup(dynamic_cast<StateP>(statement));
+        this->StateList.push_back(sup);
+    }
+    if (statement->getType() == StatementType::TransitionTy) {
+        TransitionP tup(dynamic_cast<TransitionP>(statement));
+        this->TransitionList.push_back(tup);
+    }
+}
+
+
+
+ostream& operator<<(ostream& os, const StringVector& dt) {
+    os << *dt.begin(); 
+    for (auto p = dt.begin()+1; p != dt.end(); p++) {
+        os << ", ";
+        os << *p;
+    }
+    return os;
+}
+
+ostream& operator<<(ostream& os, const State& dt) {
+    os << dt.Name << " : " << *(dt.StateList);
+    return os;
+}
+
+ostream& operator<<(ostream& os, const Transition& dt) {
+    os << dt.BeginState << " [" << dt.Condition << "] -> " << dt.EndState;
+    return os;
+}
+
+
+void FSM::print() {
+    cout << Name;
+    cout << " ( " << *Args << " ) " << *OutArgs;
+    cout << " {" << endl;
+    for (auto p : StateList) {
+        cout << '\t' << *p << endl;
+    }
+    cout << endl;
+    for (auto p : TransitionList) {
+        cout << '\t' << *p << endl;
+    }
+    cout << "}" << endl;
+}
+
+
+State::State(StringCR name, StringVectorP statelist) {
+    this->Name = name;
+    this->StateList = statelist;
+}
+
+
+
+Transition::Transition(StringCR beginstate, StringCR endstate) {
+    this->BeginState = beginstate;
+    this->EndState = endstate;
+}
+
+Transition::Transition(StringCR beginstate, StringCR endstate, StringCR condition) {
     this->BeginState = beginstate;
     this->EndState = endstate;
     this->Condition = condition;
-    this->Output = move(output);
+}
+
+Transition::Transition(StringCR beginstate, StringCR endstate, StringCR condition, StringVectorP output) {
+    this->BeginState = beginstate;
+    this->EndState = endstate;
+    this->Condition = condition;
+    this->Output = output;
 }

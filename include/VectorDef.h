@@ -1,7 +1,6 @@
 
 #define PtrDefineRename(name, base) \
-typedef std::unique_ptr<base> name##UP; \
-typedef std::shared_ptr<base> name##SP
+typedef base* name##P
 
 #define PtrDefine(name) \
 PtrDefineRename(name, name)
@@ -15,7 +14,10 @@ VectorDefineRename(name, name)
 #define VectorAndPtrDefineRename(name, base) \
 VectorDefineRename(name, base); \
 PtrDefineRename(name, base); \
-PtrDefine(name##Vector)
+PtrDefine(name##Vector); \
+VectorDefine(name##P); \
+PtrDefine(name##PVector)
+
 
 #define VectorAndPtrDefine(name) \
 VectorAndPtrDefineRename(name, name)

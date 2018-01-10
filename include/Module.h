@@ -10,7 +10,7 @@ class Module {
 public:
     FILE *src;
     char* buffer;
-    FSMVectorUP root;
+    FSMPVectorP root;
 
     int Parse();
 };

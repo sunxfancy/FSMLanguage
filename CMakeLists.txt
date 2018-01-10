@@ -3,7 +3,7 @@ project(FSMLanguage)
 
 ## Version settings
 SET(VERSION_MAJOR "0")
-SET(VERSION_MINOR "1")
+SET(VERSION_MINOR "2")
 SET(VERSION_PATCH "0")
 
 # Set a default build type if none was specified

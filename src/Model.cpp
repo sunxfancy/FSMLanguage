@@ -3,37 +3,37 @@
 using namespace std;
 using namespace fsm;
 
-FSM::FSM (StringCR name, StringVectorUP args, StringVectorUP outargs) {
+FSM::FSM (StringCR name, StringVectorP args, StringVectorP outargs) {
     this->Name = name;
-    this->Args = move(args);
-    this->OutArgs = move(outargs);
+    this->Args = args;
+    this->OutArgs = outargs;
 }
 
-FSM::FSM (StringCR name, StringVectorUP args, StringVectorUP outargs, 
-    StatementUPVectorUP statementlist) {
+FSM::FSM (StringCR name, StringVectorP args, StringVectorP outargs, 
+    StatementPVectorP statementlist) {
     this->Name = name;
-    this->Args = move(args);
-    this->OutArgs = move(outargs);
+    this->Args = args;
+    this->OutArgs = outargs;
     for (auto p : *statementlist) {
-        push_back(move(p));
+        push_back(p);
     }
 }
 
-void FSM::push_back(StatementUP statement) {
+void FSM::push_back(StatementP statement) {
     if (statement->getType() == StatementType::StateTy) {
-        StateUP sup(dynamic_cast<State*>(statement.release()));
-        this->StateList->push_back(move(sup));
+        StateP sup(dynamic_cast<StateP>(statement));
+        this->StateList->push_back(sup);
     }
     if (statement->getType() == StatementType::TransitionTy) {
-        TransitionUP tup(dynamic_cast<Transition*>(statement.release()));
-        this->TransitionList->push_back(move(tup));
+        TransitionP tup(dynamic_cast<TransitionP>(statement));
+        this->TransitionList->push_back(tup);
     }
 }
 
 
-State::State(StringCR name, StringVectorUP statelist) {
+State::State(StringCR name, StringVectorP statelist) {
     this->Name = name;
-    this->StateList = move(statelist);
+    this->StateList = statelist;
 }
 
 
@@ -49,9 +49,9 @@ Transition::Transition(StringCR beginstate, StringCR endstate, StringCR conditio
     this->Condition = condition;
 }
 
-Transition::Transition(StringCR beginstate, StringCR endstate, StringCR condition, StringVectorUP output) {
+Transition::Transition(StringCR beginstate, StringCR endstate, StringCR condition, StringVectorP output) {
     this->BeginState = beginstate;
     this->EndState = endstate;
     this->Condition = condition;
-    this->Output = move(output);
+    this->Output = output;
 }

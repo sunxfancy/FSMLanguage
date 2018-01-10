@@ -1,6 +1,7 @@
 %{
 
 #include <stdlib.h>
+#include <memory>
 #include "Module.h"
 
 #ifdef _WIN32
@@ -32,13 +33,13 @@ void yyerror (yyscan_t locp, Module *mod, char const *msg);
 }
 
 %union {
-	fsm::FSMUPVectorUP fsm_vup;
-	fsm::FSMUP fsm_up;
-	fsm::StringVectorUP string_vup;
-	fsm::StatementUPVectorUP statement_vup;
-	fsm::StatementUP statement_up;
-	fsm::StateUP state_up;
-	fsm::TransitionUPVectorUP transition_vup;
+	fsm::FSMPVectorP fsm_vup;
+	fsm::FSMP fsm_up;
+	fsm::StringVectorP string_vup;
+	fsm::StatementPVectorP statement_vup;
+	fsm::StatementP statement_up;
+	fsm::StateP state_up;
+	fsm::TransitionPVectorP transition_vup;
 	const char *str;
 	int token;
 }
@@ -50,7 +51,7 @@ void yyerror (yyscan_t locp, Module *mod, char const *msg);
 %type <fsm_up> FSM
 %type <string_vup> Args States
 %type <statement_vup> Statements
-%type <statement_up> Statement
+%type <statement_vup> Statement
 %type <state_up> Config
 %type <transition_vup> Transitions
 
@@ -59,20 +60,20 @@ void yyerror (yyscan_t locp, Module *mod, char const *msg);
 %%
 
 Program 
-	: FSMs { mod->root = move($1); }
+	: FSMs { mod->root = $1; }
 	;
 
 FSMs
-	: FSMs FSM { $1->push_back(move($2)); }
-	| FSM { FSMUPVectorUP fsm_ptr(new FSMUPVector()); 
-			fsm_ptr->push_back(move($1)); $$ = move(fsm_ptr); }
+	: FSMs FSM { $1->push_back($2); }
+	| FSM { FSMPVectorP fsm_ptr(new FSMPVector()); 
+			fsm_ptr->push_back($1); $$ = fsm_ptr; }
 	;
 
 FSM
 	: ID '(' Args ')' ':' Args '{' Statements '}' 
 		{
-			FSMUP fsm(new FSM($1, $3, $6, $8));
-			$$ = move(fsm);
+			FSMP fsm(new FSM($1, $3, $6, $8));
+			$$ = fsm;
 		}
 	;
 
@@ -82,43 +83,44 @@ Args
 			$$->push_back($3);
 		}
 	| ID {
-			StringVectorUP svup(new StringVector());
-			svup->push_back($1); $$ = move(svup);
+			StringVectorP svup(new StringVector());
+			svup->push_back($1); $$ = svup;
 		}
 	;
 
 Statements
 	: Statements Statement {
-		$1->push_back(move($2));
-		$$ = move($1); 
+		$1->insert($1->end(), $2->begin(), $2->end());
+		$$ = $1; 
 	}
 	| Statement {
-		StatementUPVectorUP svup(new StatementUPVector());
-		svup->push_back(move($1));
-		$$ = move(svup);
+		StatementPVectorP svup(new StatementPVector());
+		svup->insert(svup->end(), $1->begin(), $1->end());
+		$$ = svup;
 	}
 	;
 
 Statement
-	: Config { $$ = move($1); }
-	| Transitions { $$ = move($1); }
+	: Config { StatementPVectorP sup(new StatementPVector()); sup->push_back($1); $$ = sup; }
+	| Transitions { StatementPVectorP sup(new StatementPVector()); 
+					for (auto p : *$1) { sup->push_back(p); } $$ = sup; }
 	;
 
 Config
-	: ID ':' States { StateUP sup(new State($1, $3)); $$ = move(sup); }
+	: ID ':' States { StateP sup(new State($1, $3)); $$ = sup; }
 	;
 
 States
-	: States ',' ID { $1->push_back($3); $$ = move($1); }
-	| ID { StringVectorUP svup(new StringVector()); svup->push_back($1); $$ = move(svup); }
+	: States ',' ID { $1->push_back($3); $$ = $1; }
+	| ID { StringVectorP svup(new StringVector()); svup->push_back($1); $$ = svup; }
 	;
 
 Transitions
-	: Transitions CONDITION TO ID { TransitionUP tup(new Transition($1->back()->EndState, $4, $2));
-		 							$1->push_back(move(tup)); $$ = move($1); }
-	| ID CONDITION TO ID { TransitionUPVectorUP tvup(new TransitionUPVector()); 
-						   TransitionUP tup(new Transition($1, $4, $2));
-						   tvup->push_back(move(tup)); $$ = move(tvup); }
+	: Transitions CONDITION TO ID { TransitionP tup(new Transition($1->back()->EndState, $4, $2));
+		 							$1->push_back(tup); $$ = $1; }
+	| ID CONDITION TO ID { TransitionPVectorP tvup(new TransitionPVector()); 
+						   TransitionP tup(new Transition($1, $4, $2));
+						   tvup->push_back(tup); $$ = tvup; }
 	;
 
 /*

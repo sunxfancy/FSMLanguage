@@ -4,20 +4,11 @@
 #include <cstring>
 #include "parser.hpp"
 
-#define SAVE_TOKEN yylval.str = maketoken(yytext, yyleng)
-#define SAVE_STRING yylval.str = makestring(yytext, yyleng)
-
-char* maketoken(const char* data, int len);
-char* makestring(const char* data, int len);
-
-#ifdef _WIN32
-
-#undef SAVE_TOKEN
-#undef SAVE_STRING
 #define SAVE_TOKEN yylval->str = maketoken(yytext, yyleng)
 #define SAVE_STRING yylval->str = makestring(yytext, yyleng)
 
-#endif
+char* maketoken(const char* data, int len);
+char* makestring(const char* data, int len);
 
 %}
 

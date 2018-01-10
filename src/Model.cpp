@@ -10,20 +10,23 @@ FSM::FSM (StringCR name, StringVectorUP args, StringVectorUP outargs) {
 }
 
 FSM::FSM (StringCR name, StringVectorUP args, StringVectorUP outargs, 
-    StateVectorUP statelist, TransitionVectorUP transitionlist) {
+    StatementUPVectorUP statementlist) {
     this->Name = name;
     this->Args = move(args);
     this->OutArgs = move(outargs);
-    this->StateList = move(statelist);
-    this->TransitionList = move(transitionlist);
+    for (auto p : *statementlist) {
+        push_back(move(p));
+    }
 }
 
 void FSM::push_back(StatementUP statement) {
     if (statement->getType() == StatementType::StateTy) {
-        this->StateList->push_back(statement.release());
+        StateUP sup(dynamic_cast<State*>(statement.release()));
+        this->StateList->push_back(move(sup));
     }
     if (statement->getType() == StatementType::TransitionTy) {
-        this->TransitionList->push_back(statement.release());
+        TransitionUP tup(dynamic_cast<Transition*>(statement.release()));
+        this->TransitionList->push_back(move(tup));
     }
 }
 
@@ -31,6 +34,19 @@ void FSM::push_back(StatementUP statement) {
 State::State(StringCR name, StringVectorUP statelist) {
     this->Name = name;
     this->StateList = move(statelist);
+}
+
+
+
+Transition::Transition(StringCR beginstate, StringCR endstate) {
+    this->BeginState = beginstate;
+    this->EndState = endstate;
+}
+
+Transition::Transition(StringCR beginstate, StringCR endstate, StringCR condition) {
+    this->BeginState = beginstate;
+    this->EndState = endstate;
+    this->Condition = condition;
 }
 
 Transition::Transition(StringCR beginstate, StringCR endstate, StringCR condition, StringVectorUP output) {

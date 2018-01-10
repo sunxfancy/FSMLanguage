@@ -2,29 +2,26 @@
 
 #include <cstdio>
 #include <cstring>
-#include "State.h"
 #include "parser.hpp"
 
 #define SAVE_TOKEN yylval.str = maketoken(yytext, yyleng)
 #define SAVE_STRING yylval.str = makestring(yytext, yyleng)
 
-extern "C" int yywrap() { return 1; }
 char* maketoken(const char* data, int len);
 char* makestring(const char* data, int len);
 
 #ifdef _WIN32
 
-/*windows compatibility case*/  
-#define YY_NO_UNISTD_H
-#include <io.h>  
-#define isatty _isatty  
-#define fileno _fileno  
+#undef SAVE_TOKEN
+#undef SAVE_STRING
+#define SAVE_TOKEN yylval->str = maketoken(yytext, yyleng)
+#define SAVE_STRING yylval->str = makestring(yytext, yyleng)
 
 #endif
 
 %}
 
-/* show the line number */
+	/* show the line number */
 %option yylineno
 %option reentrant bison-bridge noyywrap
 
@@ -38,6 +35,7 @@ char* makestring(const char* data, int len);
 \n|\r\n|\r              ; /* ignore line break */
 
 \"(\\.|[^\\"])*\"		SAVE_STRING; return STRING;
+"("[^\)]*")"			SAVE_STRING; return CONDITION;
 
 "->"                    return TO;
 

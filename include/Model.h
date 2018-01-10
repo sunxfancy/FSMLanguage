@@ -24,11 +24,11 @@ public:
     std::string Name;
     StringVectorUP Args;
     StringVectorUP OutArgs;
-    StateVectorUP StateList;
-    TransitionVectorUP TransitionList;
+    StateUPVectorUP StateList;
+    TransitionUPVectorUP TransitionList;
     
     FSM(StringCR name, StringVectorUP args, StringVectorUP outargs);
-    FSM(StringCR name, StringVectorUP args, StringVectorUP outargs, StateVectorUP statelist, TransitionVectorUP transitionlist);
+    FSM(StringCR name, StringVectorUP args, StringVectorUP outargs, StatementUPVectorUP statementlist);
     void push_back(StatementUP statement);
 };
 
@@ -50,11 +50,14 @@ public:
 };
 
 class Transition : public Statement {
+public:
     std::string BeginState;
     std::string EndState;
     std::string Condition;
     StringVectorUP Output;
 
+    Transition(StringCR beginstate, StringCR endstate);
+    Transition(StringCR beginstate, StringCR endstate, StringCR condition);
     Transition(StringCR beginstate, StringCR endstate, StringCR condition, StringVectorUP output);
     virtual StatementType getType() { return TransitionTy; }
 };

@@ -2,10 +2,19 @@
 
 #include <stdlib.h>
 #include "Module.h"
+
+#ifdef _WIN32
+/* windows compatibility case */  
+#define YY_NO_UNISTD_H
+#include <io.h>  
+#define isatty _isatty  
+#define fileno _fileno  
+#endif
+
 #include "parser.hpp"
 #include "lex.h"
 using namespace std;
-using namespace fir;
+using namespace fsm;
 
 void yyerror (yyscan_t locp, Module *mod, char const *msg);
 
@@ -13,7 +22,7 @@ void yyerror (yyscan_t locp, Module *mod, char const *msg);
 
 %define api.pure full
 %lex-param {void *scanner}
-%parse-param {void *scanner}{Module *mod}
+%parse-param {void *scanner}{fsm::Module *mod}
 
 %define parse.trace
 %define parse.error verbose
@@ -23,23 +32,23 @@ void yyerror (yyscan_t locp, Module *mod, char const *msg);
 }
 
 %union {
-	FSMVectorUP fsm_vup;
-	FSMUP fsm_up;
-	StringVectorUP string_vup;
-	StatementVectorUP statement_vup;
-	StatementUP statement_up;
-	StateUP state_up;
-	TransitionVectorUP transition_vup;
+	fsm::FSMUPVectorUP fsm_vup;
+	fsm::FSMUP fsm_up;
+	fsm::StringVectorUP string_vup;
+	fsm::StatementUPVectorUP statement_vup;
+	fsm::StatementUP statement_up;
+	fsm::StateUP state_up;
+	fsm::TransitionUPVectorUP transition_vup;
 	const char *str;
 	int token;
 }
 
 %token <token> CEQ CNE CGE CLE TO
-%token <str> ID STRING 
+%token <str> ID STRING CONDITION
 
 %type <fsm_vup> Program FSMs 
 %type <fsm_up> FSM
-%type <string_vup> Args
+%type <string_vup> Args States
 %type <statement_vup> Statements
 %type <statement_up> Statement
 %type <state_up> Config
@@ -54,9 +63,9 @@ Program
 	;
 
 FSMs
-	: FSMs FSM { $1->push_back($2.release()); }
-	| FSM { FSMVectorUP fsm_ptr(new FSMVector()); 
-			fsm_ptr->push_back($1.release()); $$ = move(fsm_ptr); }
+	: FSMs FSM { $1->push_back(move($2)); }
+	| FSM { FSMUPVectorUP fsm_ptr(new FSMUPVector()); 
+			fsm_ptr->push_back(move($1)); $$ = move(fsm_ptr); }
 	;
 
 FSM
@@ -80,12 +89,12 @@ Args
 
 Statements
 	: Statements Statement {
-		$1->push_back($2.release());
+		$1->push_back(move($2));
 		$$ = move($1); 
 	}
 	| Statement {
-		StatementVectorUP svup(new StatementVector());
-		svup->push_back($1);
+		StatementUPVectorUP svup(new StatementUPVector());
+		svup->push_back(move($1));
 		$$ = move(svup);
 	}
 	;
@@ -100,15 +109,19 @@ Config
 	;
 
 States
-	: States ',' ID { $1->push_back($3); $$ = $1; }
+	: States ',' ID { $1->push_back($3); $$ = move($1); }
 	| ID { StringVectorUP svup(new StringVector()); svup->push_back($1); $$ = move(svup); }
 	;
 
 Transitions
-	: Transitions Condition TO ID {  }
-	| ID Condition TO ID { Transition tup(new Transition($1, )); }
+	: Transitions CONDITION TO ID { TransitionUP tup(new Transition($1->back()->EndState, $4, $2));
+		 							$1->push_back(move(tup)); $$ = move($1); }
+	| ID CONDITION TO ID { TransitionUPVectorUP tvup(new TransitionUPVector()); 
+						   TransitionUP tup(new Transition($1, $4, $2));
+						   tvup->push_back(move(tup)); $$ = move(tvup); }
 	;
 
+/*
 Condition
 	: '(' Exprs ')'
 	| '(' ')'
@@ -138,6 +151,7 @@ Expr
 	| '!' Expr
 	| '(' Expr ')'
 	;
+*/
 %%
 
 void yyerror (yyscan_t locp, Module *mod, const char *msg) {

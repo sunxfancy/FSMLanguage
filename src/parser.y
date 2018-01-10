@@ -33,6 +33,7 @@ void yyerror (yyscan_t locp, Module *mod, char const *msg);
 
 
 %token <str> ID STRING 
+%token <token> CEQ CGE CLE CNE TO 
 
 %type <fsm_vup> Program FSMs 
 %type <fsm_up> FSM
@@ -63,7 +64,7 @@ FSM
 Args
 	: Args ',' ID 
 		{
-			FSM = 
+			
 		}
 	| ID
 	;

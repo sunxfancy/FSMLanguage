@@ -26,10 +26,11 @@ char* makestring(const char* data, int len);
 \n|\r\n|\r              ; /* ignore line break */
 
 \"(\\.|[^\\"])*\"		SAVE_STRING; return STRING;
-"("[^\)]*")"			SAVE_STRING; return CONDITION;
+"["[^\]]*"]"			SAVE_STRING; return CONDITION;
 
 "->"                    return TO;
 
+","						return ',';
 ":"						return ':'; 
 
 "("						return '('; 

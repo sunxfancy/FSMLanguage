@@ -64,25 +64,25 @@ public:
     ~FSM() {
         if (Args) delete Args;
         if (OutArgs) delete OutArgs;
-        if (StateList) {
-            for (State *ptr : *StateList) { delete ptr; }
-            delete StateList;
+        if (!StateList.empty()) {
+            for (State *ptr : StateList) { delete ptr; }
         }
-        if (TransitionList) {
-            for (Transition *ptr : *TransitionList) { delete ptr; }
-            delete TransitionList;
+        if (!TransitionList.empty()) {
+            for (Transition *ptr : TransitionList) { delete ptr; }
         }
     }
 
     std::string Name;
     StringVectorP Args = nullptr;
     StringVectorP OutArgs = nullptr;
-    StatePVectorP StateList = nullptr;
-    TransitionPVectorP TransitionList = nullptr;
+    StatePVector StateList;
+    TransitionPVector TransitionList;
     
     FSM(StringCR name, StringVectorP args, StringVectorP outargs);
     FSM(StringCR name, StringVectorP args, StringVectorP outargs, StatementPVectorP statementlist);
     void push_back(StatementP statement);
+
+    void print();
 };
 
 

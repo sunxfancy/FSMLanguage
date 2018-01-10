@@ -29,6 +29,7 @@ int Module::Parse() {
 		exit(1);
 	}
 	yylex_destroy(sc);
+	return res;
 }
 
 }

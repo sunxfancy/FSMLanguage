@@ -1,4 +1,5 @@
 #include "Model.h"
+#include <iostream>
 
 using namespace std;
 using namespace fsm;
@@ -22,12 +23,48 @@ FSM::FSM (StringCR name, StringVectorP args, StringVectorP outargs,
 void FSM::push_back(StatementP statement) {
     if (statement->getType() == StatementType::StateTy) {
         StateP sup(dynamic_cast<StateP>(statement));
-        this->StateList->push_back(sup);
+        this->StateList.push_back(sup);
     }
     if (statement->getType() == StatementType::TransitionTy) {
         TransitionP tup(dynamic_cast<TransitionP>(statement));
-        this->TransitionList->push_back(tup);
+        this->TransitionList.push_back(tup);
     }
+}
+
+
+
+ostream& operator<<(ostream& os, const StringVector& dt) {
+    os << *dt.begin(); 
+    for (auto p = dt.begin()+1; p != dt.end(); p++) {
+        os << ", ";
+        os << *p;
+    }
+    return os;
+}
+
+ostream& operator<<(ostream& os, const State& dt) {
+    os << dt.Name << " : " << *(dt.StateList);
+    return os;
+}
+
+ostream& operator<<(ostream& os, const Transition& dt) {
+    os << dt.BeginState << " [" << dt.Condition << "] -> " << dt.EndState;
+    return os;
+}
+
+
+void FSM::print() {
+    cout << Name;
+    cout << " ( " << *Args << " ) " << *OutArgs;
+    cout << " {" << endl;
+    for (auto p : StateList) {
+        cout << '\t' << *p << endl;
+    }
+    cout << endl;
+    for (auto p : TransitionList) {
+        cout << '\t' << *p << endl;
+    }
+    cout << "}" << endl;
 }
 
 

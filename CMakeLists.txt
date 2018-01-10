@@ -25,13 +25,14 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 ## CPP Compiler 
 ## TODO: add gcc support and windows support
-SET (CMAKE_CXX_COMPILER_ENV_VAR "clang++")
+if (UNIX)
+# SET (CMAKE_CXX_COMPILER_ENV_VAR "clang++")
 SET (CMAKE_CXX_FLAGS "-std=c++11")
 SET (CMAKE_CXX_FLAGS_DEBUG "-g")
 SET (CMAKE_CXX_FLAGS_MINSIZEREL "-Os -DNDEBUG")
 SET (CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 SET (CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
-
+endif()
 
 ## Source code configuration
 file(GLOB_RECURSE source_files	${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)

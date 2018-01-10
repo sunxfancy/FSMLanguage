@@ -100,13 +100,13 @@ Config
 	;
 
 States
-	: States ',' ID 
-	| ID
+	: States ',' ID { $1->push_back($3); $$ = $1; }
+	| ID { StringVectorUP svup(new StringVector()); svup->push_back($1); $$ = move(svup); }
 	;
 
 Transitions
-	: Transitions Condition TO ID
-	| ID Condition TO ID
+	: Transitions Condition TO ID {  }
+	| ID Condition TO ID { Transition tup(new Transition($1, )); }
 	;
 
 Condition

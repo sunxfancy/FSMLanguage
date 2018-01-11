@@ -54,6 +54,7 @@ void yyerror (yyscan_t locp, Module *mod, char const *msg);
 %type <statement_vup> Statement
 %type <state_up> Config
 %type <transition_vup> Transitions
+%type <str> Condition
 
 %start Program
 
@@ -116,11 +117,16 @@ States
 	;
 
 Transitions
-	: Transitions CONDITION TO ID { TransitionP tup(new Transition($1->back()->EndState, $4, $2));
+	: Transitions Condition TO ID { TransitionP tup(new Transition($1->back()->EndState, $4, $2));
 		 							$1->push_back(tup); $$ = $1; }
-	| ID CONDITION TO ID { TransitionPVectorP tvup(new TransitionPVector()); 
+	| ID Condition TO ID { TransitionPVectorP tvup(new TransitionPVector()); 
 						   TransitionP tup(new Transition($1, $4, $2));
 						   tvup->push_back(tup); $$ = tvup; }
+	;
+
+Condition
+	: CONDITION { $$ = $1; }
+	| %empty    { $$ = ""; }
 	;
 
 /*

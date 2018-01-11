@@ -32,27 +32,6 @@ void FSM::push_back(StatementP statement) {
 }
 
 
-
-ostream& operator<<(ostream& os, const StringVector& dt) {
-    os << *dt.begin(); 
-    for (auto p = dt.begin()+1; p != dt.end(); p++) {
-        os << ", ";
-        os << *p;
-    }
-    return os;
-}
-
-ostream& operator<<(ostream& os, const State& dt) {
-    os << dt.Name << " : " << *(dt.StateList);
-    return os;
-}
-
-ostream& operator<<(ostream& os, const Transition& dt) {
-    os << dt.BeginState << " [" << dt.Condition << "] -> " << dt.EndState;
-    return os;
-}
-
-
 void FSM::print() {
     cout << Name;
     cout << " ( " << *Args << " ) " << *OutArgs;

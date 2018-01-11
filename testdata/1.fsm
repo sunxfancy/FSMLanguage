@@ -1,8 +1,24 @@
 Robot(found_human, found_enemy) : void {    
-    state : stop, move
+    state : stop, move, turnround
     state2: fire, ceasefire
     move[found_human==0] -> stop
-    stop[found_human==1] -> move
+    stop -> move -> turnround
+    fire[found_enemy==0] -> ceasefire
+    ceasefire[found_enemy==1] -> fire
+}
+
+
+Robot2(found_human, found_enemy) : void {    
+    state : stop, move, turnround
+    move[found_human==0] -> stop
+    stop -> move -> turnround
+}
+
+
+Robot3(found_human, found_enemy) : void {    
+    state : stop
+    state2: fire, ceasefire
+    stop -> move -> turnround
     fire[found_enemy==0] -> ceasefire
     ceasefire[found_enemy==1] -> fire
 }

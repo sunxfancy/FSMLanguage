@@ -32,6 +32,29 @@ void FSM::push_back(StatementP statement) {
 }
 
 
+
+static std::ostream& operator<<(std::ostream& os, const StringVector& dt) {
+    os << *dt.begin(); 
+    for (auto p = dt.begin()+1; p != dt.end(); p++) {
+        os << ", ";
+        os << *p;
+    }
+    return os;
+}
+
+static std::ostream& operator<<(std::ostream& os, const State& dt) {
+    os << dt.Name << " : " << *(dt.StateList);
+    return os;
+}
+
+static std::ostream& operator<<(std::ostream& os, const Transition& dt) {
+    if (dt.Condition.empty()) 
+        os << dt.BeginState << " -> " << dt.EndState;
+    else
+        os << dt.BeginState << " [" << dt.Condition << "] -> " << dt.EndState;
+    return os;
+}
+
 void FSM::print() {
     cout << Name;
     cout << " ( " << *Args << " ) " << *OutArgs;
@@ -43,7 +66,7 @@ void FSM::print() {
     for (auto p : TransitionList) {
         cout << '\t' << *p << endl;
     }
-    cout << "}" << endl;
+    cout << "}" << endl << endl;
 }
 
 

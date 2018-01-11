@@ -85,34 +85,4 @@ public:
     void print();
 };
 
-
-
-/**
- * For debuging output
- */
-
-ostream& operator<<(ostream& os, const StringVector& dt) {
-    os << *dt.begin(); 
-    for (auto p = dt.begin()+1; p != dt.end(); p++) {
-        os << ", ";
-        os << *p;
-    }
-    return os;
-}
-
-ostream& operator<<(ostream& os, const State& dt) {
-    os << dt.Name << " : " << *(dt.StateList);
-    return os;
-}
-
-ostream& operator<<(ostream& os, const Transition& dt) {
-    if (dt.Condition.empty()) 
-        os << dt.BeginState << " -> " << dt.EndState;
-    else
-        os << dt.BeginState << " [" << dt.Condition << "] -> " << dt.EndState;
-    return os;
-}
-
-
-
 }

@@ -15,3 +15,14 @@ Robot(found_human, found_enemy) : void {
     ceasefire[found_enemy==1] -> fire
 }
 ```
+
+We provided a list of API parsing and loading this FSM definition:
+```cpp
+    fsm::Module mod;
+    mod.src = fopen(argv[1], "r");
+    mod.Parse();
+    fclose(mod.src);
+    for (auto p : *(mod.root)) {
+        p->print();
+    }
+```
